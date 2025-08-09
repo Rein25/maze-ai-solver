@@ -1,0 +1,463 @@
+.controls-container {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 15px;
+  padding: 25px;
+  margin: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  color: white;
+}
+
+.controls-header {
+  margin-bottom: 25px;
+  padding-bottom: 15px;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.controls-header h3 {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 600;
+  color: white;
+  text-align: center;
+}
+
+.controls-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 25px;
+  margin-bottom: 25px;
+
+  /* Toggle switch */
+  .switch {
+    position: relative;
+    display: inline-block;
+    width: 42px;
+    height: 24px;
+  }
+
+  .switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+
+  .slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(255, 255, 255, 0.25);
+    transition: 0.2s;
+    border-radius: 24px;
+  }
+
+  .slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: 0.2s;
+    border-radius: 50%;
+  }
+
+  input:checked + .slider {
+    background-color: #10b981;
+  }
+
+  input:checked + .slider:before {
+    transform: translateX(18px);
+  }
+}
+
+.control-section {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 20px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: all 0.3s ease;
+}
+
+.control-section:hover {
+  background: rgba(255, 255, 255, 0.15);
+  transform: translateY(-2px);
+}
+
+.control-section h4 {
+  margin: 0 0 15px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: white;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.control-group {
+  margin-bottom: 15px;
+}
+
+.control-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.control-select {
+  width: 100%;
+  padding: 10px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  font-size: 14px;
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+}
+
+.control-select:focus {
+  outline: none;
+  border-color: rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.control-select option {
+  background: #1f2937;
+  color: white;
+}
+
+.control-button {
+  padding: 12px 20px;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  margin-bottom: 10px;
+  position: relative;
+  overflow: hidden;
+}
+
+.control-button::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+  transition: left 0.5s;
+}
+
+.control-button:hover::before {
+  left: 100%;
+}
+
+.control-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+}
+
+.control-button:active {
+  transform: translateY(0);
+}
+
+.control-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.control-button:disabled:hover {
+  transform: none;
+  box-shadow: none;
+}
+
+/* Button variants */
+.control-button.primary {
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+  color: white;
+}
+
+.control-button.success {
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: white;
+}
+
+.control-button.warning {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  color: white;
+}
+
+.control-button.danger {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  color: white;
+}
+
+.control-button.info {
+  background: linear-gradient(135deg, #06b6d4, #0891b2);
+  color: white;
+}
+
+.control-button.neutral {
+  background: linear-gradient(135deg, #6b7280, #4b5563);
+  color: white;
+}
+
+.button-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.status-display {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 15px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.status-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.status-label {
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.status-value {
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: 15px;
+  font-size: 14px;
+}
+
+.status-value.won {
+  background: #10b981;
+  color: white;
+}
+
+.status-value.lost {
+  background: #ef4444;
+  color: white;
+}
+
+.status-value.playing {
+  background: #f59e0b;
+  color: white;
+  animation: pulse 2s infinite;
+}
+
+.status-value.idle {
+  background: #6b7280;
+  color: white;
+}
+
+.tips-section {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 20px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.tips-section h4 {
+  margin: 0 0 15px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: white;
+}
+
+.tips-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tips-list li {
+  padding: 8px 0;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 14px;
+  line-height: 1.4;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.tips-list li:last-child {
+  border-bottom: none;
+}
+
+/* Epsilon controls */
+.epsilon-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.06);
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.epsilon-row {
+  display: grid;
+  grid-template-columns: 90px 1fr 50px;
+  align-items: center;
+  gap: 8px;
+}
+
+.epsilon-row.small-text {
+  grid-template-columns: 1fr 100px;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.epsilon-note.small-text {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.number-input {
+  width: 120px;
+  padding: 6px 8px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+}
+
+.mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    "Liberation Mono", "Courier New", monospace;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .controls-container {
+    margin: 10px;
+    padding: 20px;
+  }
+
+  .controls-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .control-section {
+    padding: 15px;
+  }
+
+  .button-group {
+    gap: 8px;
+  }
+
+  .control-button {
+    padding: 10px 16px;
+    font-size: 13px;
+  }
+
+  .status-item {
+    flex-direction: column;
+    gap: 8px;
+    text-align: center;
+  }
+}
+
+/* Game mode description styles */
+.mode-description {
+  margin-top: 15px;
+  padding: 15px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  border-left: 4px solid var(--primary-color);
+}
+
+.mode-description p {
+  margin-bottom: 10px;
+  font-style: italic;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.mode-features {
+  margin-top: 10px;
+}
+
+.mode-features strong {
+  color: var(--primary-color);
+  display: block;
+  margin-bottom: 8px;
+}
+
+.mode-features ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.mode-features li {
+  padding: 4px 0;
+  padding-left: 16px;
+  position: relative;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.mode-features li::before {
+  content: "▪";
+  position: absolute;
+  left: 0;
+  color: var(--accent-color);
+  font-weight: bold;
+}
+
+@media (max-width: 480px) {
+  .controls-header h3 {
+    font-size: 18px;
+  }
+
+  .control-section h4 {
+    font-size: 14px;
+  }
+
+  .tips-list li {
+    font-size: 13px;
+  }
+
+  .mode-description {
+    padding: 10px;
+  }
+
+  .mode-features li {
+    font-size: 12px;
+  }
+}
