@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import "./Maze.css";
 
 const Maze = ({
@@ -11,6 +12,19 @@ const Maze = ({
   gameMode = "classic",
   visualData = null,
 }) => {
+  const flowIndex = useMemo(() => {
+    const idx = new Map();
+    if (visualData && Array.isArray(visualData.flows)) {
+      for (const cell of visualData.flows) {
+        const key = `${cell.position[0]},${cell.position[1]}`;
+        idx.set(key, cell);
+      }
+    }
+    return idx;
+  }, [visualData]);
+
+  const getFlow = (row, col) => flowIndex.get(`${row},${col}`);
+
   const getCellClass = (row, col) => {
     const classes = ["cell"];
 
@@ -19,6 +33,19 @@ const Maze = ({
       classes.push("wall");
     } else {
       classes.push("path");
+    }
+
+    // Flow overlays (water/electric)
+    const flow = getFlow(row, col);
+    if (flow) {
+      classes.push("flow");
+      classes.push(flow.type === "electric" ? "flow-electric" : "flow-water");
+      if (flow.moving) classes.push("flow-moving");
+      const [dx, dy] = flow.dir || [0, 0];
+      if (dx === 1) classes.push("dir-down");
+      else if (dx === -1) classes.push("dir-up");
+      else if (dy === 1) classes.push("dir-right");
+      else if (dy === -1) classes.push("dir-left");
     }
 
     // Dynamic elements (for enhanced game modes)
@@ -172,6 +199,24 @@ const Maze = ({
               )}
             </>
           )}
+          {visualData &&
+            Array.isArray(visualData.flows) &&
+            visualData.flows.length > 0 && (
+              <>
+                {visualData.flows.some((c) => c.type === "water") && (
+                  <div className="legend-item">
+                    <div className="legend-color water"></div>
+                    <span>Water Flow</span>
+                  </div>
+                )}
+                {visualData.flows.some((c) => c.type === "electric") && (
+                  <div className="legend-item">
+                    <div className="legend-color electric"></div>
+                    <span>Electricity</span>
+                  </div>
+                )}
+              </>
+            )}
         </div>
         {isTraining && (
           <div className="training-indicator">

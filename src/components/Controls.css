@@ -222,6 +222,21 @@
   color: white;
 }
 
+/* Special action buttons */
+.control-button.water {
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+  color: #fff;
+  font-size: 18px;
+  padding: 14px 18px;
+}
+
+.control-button.electricity {
+  background: linear-gradient(135deg, #fde047, #f59e0b);
+  color: #1f2937;
+  font-size: 18px;
+  padding: 14px 18px;
+}
+
 .button-group {
   display: flex;
   flex-direction: column;

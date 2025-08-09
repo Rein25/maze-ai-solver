@@ -73,6 +73,8 @@ export class HybridMazeAgent {
     this.solutionSteps = 0;
     this.knownSolution = null;
     this.visited = new Set([`1,1`]);
+    this.prevPosition = null;
+    this.lastAction = -1;
   }
 
   // Adaptive strategy selection
@@ -135,10 +137,12 @@ export class HybridMazeAgent {
     const newPosition = [this.position[0] + dx, this.position[1] + dy];
 
     if (this.isValidMove(this.position, action, maze)) {
+      this.prevPosition = this.position;
       this.position = newPosition;
       this.path.push([...newPosition]);
       this.moves++;
       this.visited.add(`${newPosition[0]},${newPosition[1]}`);
+      this.lastAction = action;
 
       return {
         position: [...newPosition],
@@ -218,20 +222,32 @@ export class HybridMazeAgent {
         // Bias towards goal direction for large mazes
         return this.getBiasedAction(state, validActions);
       } else {
-        return validActions[Math.floor(Math.random() * validActions.length)];
+        // Avoid immediate reverse where possible
+        const pool = validActions.filter((a) =>
+          this.lastAction === -1 ? true : (a + 2) % 4 !== this.lastAction
+        );
+        const arr = pool.length ? pool : validActions;
+        return arr[(Math.random() * arr.length) | 0];
       }
     } else {
       let bestAction = validActions[0];
-      let bestValue = -Infinity;
-
-      for (const action of validActions) {
-        const qValue = this.getQValue(state, action);
-        if (qValue > bestValue) {
-          bestValue = qValue;
-          bestAction = action;
+      let bestScore = -Infinity;
+      for (const a of validActions) {
+        const q = this.getQValue(state, a);
+        const [dx, dy] = this.actions[a];
+        const next = [state[0] + dx, state[1] + dy];
+        const key = `${next[0]},${next[1]}`;
+        const unvisited = this.visited && !this.visited.has(key) ? 1 : 0;
+        const manhDelta =
+          this.manhattanToGoal(state) - this.manhattanToGoal(next);
+        const reverse =
+          this.lastAction !== -1 && (a + 2) % 4 === this.lastAction ? 1 : 0;
+        const score = q + 0.05 * manhDelta + 0.1 * unvisited - 0.05 * reverse;
+        if (score > bestScore) {
+          bestScore = score;
+          bestAction = a;
         }
       }
-
       return bestAction;
     }
   }
@@ -338,6 +354,8 @@ export class HybridMazeAgent {
     // Cap episode length to prevent thrashing in tiny mazes
     const maxMoves = this.isLargeMaze
       ? this.mazeSize
+      : this.width <= 31
+      ? Math.max(100, Math.floor((this.width * this.height) / 2))
       : Math.max(this.width * this.height, 150);
     const isGameOver = this.moves > maxMoves || isWin;
 

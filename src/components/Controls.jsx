@@ -11,6 +11,8 @@ const Controls = ({
   onBenchmarkAlgorithms,
   onAgentTypeChange,
   onGameModeChange,
+  onPourWater,
+  onPulseElectricity,
   isTraining,
   showSolution,
   gameStatus,
@@ -108,10 +110,7 @@ const Controls = ({
             </select>
           </div>
 
-          <button
-            className="control-button primary"
-            onClick={onGenerateMaze}
-          >
+          <button className="control-button primary" onClick={onGenerateMaze}>
             🎲 Generate New Maze
           </button>
 
@@ -141,6 +140,22 @@ const Controls = ({
               📊 Benchmark Algorithms
             </button>
           )}
+
+          <button
+            className="control-button water"
+            onClick={onPourWater}
+            title="Add flowing water from the top"
+          >
+            💧 Water
+          </button>
+
+          <button
+            className="control-button electricity"
+            onClick={onPulseElectricity}
+            title="Send electricity through the maze"
+          >
+            ⚡ Electricity
+          </button>
         </div>
 
         {/* AI Training Controls Section */}

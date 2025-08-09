@@ -468,3 +468,69 @@
 .legend-color.fog {
   background: rgba(0, 0, 0, 0.7);
 }
+
+/* Flow legend colors */
+.legend-color.water {
+  background: rgba(59, 130, 246, 0.8);
+}
+.legend-color.electric {
+  background: rgba(250, 204, 21, 0.9);
+}
+
+/* Flow overlays */
+.cell.flow::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 70%;
+  height: 70%;
+  border-radius: 4px;
+  opacity: 0.75;
+  z-index: 5;
+}
+.cell.flow-water::after {
+  background: linear-gradient(
+    135deg,
+    rgba(59, 130, 246, 0.6),
+    rgba(59, 130, 246, 0.3)
+  );
+  box-shadow: 0 0 6px rgba(59, 130, 246, 0.8);
+}
+.cell.flow-electric::after {
+  background: linear-gradient(
+    135deg,
+    rgba(250, 204, 21, 0.7),
+    rgba(250, 204, 21, 0.4)
+  );
+  box-shadow: 0 0 6px rgba(250, 204, 21, 0.9);
+}
+.cell.flow-moving::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 0;
+  height: 0;
+  border-style: solid;
+  z-index: 6;
+  opacity: 0.9;
+}
+.cell.flow-moving.dir-up::before {
+  border-width: 8px 5px 0 5px;
+  border-color: rgba(255, 255, 255, 0.9) transparent transparent transparent;
+}
+.cell.flow-moving.dir-down::before {
+  border-width: 0 5px 8px 5px;
+  border-color: transparent transparent rgba(255, 255, 255, 0.9) transparent;
+}
+.cell.flow-moving.dir-left::before {
+  border-width: 5px 8px 5px 0;
+  border-color: transparent rgba(255, 255, 255, 0.9) transparent transparent;
+}
+.cell.flow-moving.dir-right::before {
+  border-width: 5px 0 5px 8px;
+  border-color: transparent transparent transparent rgba(255, 255, 255, 0.9);
+}

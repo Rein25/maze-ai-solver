@@ -48,6 +48,10 @@ export class QLearningAgent {
     this.path = [[1, 1]];
     this.moves = 0;
     this.isTraining = false;
+    this.prevPosition = null;
+    this.lastAction = -1;
+    this.visited = new Set(["1,1"]);
+    this.visitCounts = new Map([["1,1", 1]]);
   }
 
   getStateKey(x, y) {
@@ -115,20 +119,34 @@ export class QLearningAgent {
     // Epsilon-greedy action selection
     if (Math.random() < this.epsilon && this.isTraining) {
       // Explore: choose random valid action
-      return validActions[Math.floor(Math.random() * validActions.length)];
+      // Avoid immediate reverse during exploration when possible
+      const nonReverse = validActions.filter((a) =>
+        this.lastAction === -1 ? true : (a + 2) % 4 !== this.lastAction
+      );
+      const pool = nonReverse.length > 0 ? nonReverse : validActions;
+      return pool[(Math.random() * pool.length) | 0];
     } else {
       // Exploit: choose best action among valid ones
+      // Break ties with heuristic: prefer unvisited and Manhattan improvement; avoid reverse
       let bestAction = validActions[0];
-      let bestValue = -Infinity;
-
-      for (const action of validActions) {
-        const qValue = this.getQValue(state, action);
-        if (qValue > bestValue) {
-          bestValue = qValue;
-          bestAction = action;
+      let bestScore = -Infinity;
+      for (const a of validActions) {
+        const q = this.getQValue(state, a);
+        const [dx, dy] = this.actions[a];
+        const next = [state[0] + dx, state[1] + dy];
+        const key = `${next[0]},${next[1]}`;
+        const unvisited = this.visited && !this.visited.has(key) ? 1 : 0;
+        const manhDelta =
+          this.manhattanToGoal(state) - this.manhattanToGoal(next); // >0 if closer
+        const reverse =
+          this.lastAction !== -1 && (a + 2) % 4 === this.lastAction ? 1 : 0;
+        const tieBreak =
+          q + 0.05 * manhDelta + 0.1 * unvisited - 0.05 * reverse;
+        if (tieBreak > bestScore) {
+          bestScore = tieBreak;
+          bestAction = a;
         }
       }
-
       return bestAction;
     }
   }
@@ -153,9 +171,14 @@ export class QLearningAgent {
     const newPosition = [this.position[0] + dx, this.position[1] + dy];
 
     if (this.isValidMove(this.position, action, maze)) {
+      this.prevPosition = this.position;
       this.position = newPosition;
       this.path.push([...newPosition]);
       this.moves++;
+      this.lastAction = action;
+      const key = `${newPosition[0]},${newPosition[1]}`;
+      this.visited.add(key);
+      this.visitCounts.set(key, (this.visitCounts.get(key) || 0) + 1);
 
       return {
         position: [...newPosition],
@@ -195,6 +218,23 @@ export class QLearningAgent {
       reward -= 1; // Penalty for moving away
     }
 
+    // Encourage exploration of new cells
+    const key = `${newState[0]},${newState[1]}`;
+    if (this.visited && !this.visited.has(key)) {
+      reward += 1.5; // first visit bonus
+    }
+    // Penalize immediate backtracking (oscillation)
+    if (
+      this.prevPosition &&
+      newState[0] === this.prevPosition[0] &&
+      newState[1] === this.prevPosition[1]
+    ) {
+      reward -= 3;
+    }
+    // Light penalty for frequent revisits
+    const vCount = this.visitCounts ? this.visitCounts.get(key) || 0 : 0;
+    if (vCount > 2) reward -= Math.min(2, 0.1 * vCount);
+
     return reward;
   }
 
@@ -222,7 +262,12 @@ export class QLearningAgent {
     const goalX = this.height - 2;
     const goalY = this.width - 2;
     const isWin = this.position[0] === goalX && this.position[1] === goalY;
-    const isGameOver = this.moves > this.width * this.height || isWin;
+    // Shorter episodes on small/medium mazes to avoid thrashing
+    const stepCap =
+      this.width <= 31
+        ? Math.max(100, Math.floor((this.width * this.height) / 2))
+        : this.width * this.height;
+    const isGameOver = this.moves > stepCap || isWin;
 
     if (previousState && action !== null) {
       const reward = this.getReward(
@@ -292,6 +337,10 @@ export class QLearningAgent {
     this.successfulGames = 0;
     this.qTable.clear();
     this.epsilon = this.epsilonStart;
+    this.prevPosition = null;
+    this.lastAction = -1;
+    this.visited = new Set(["1,1"]);
+    this.visitCounts = new Map([["1,1", 1]]);
   }
 
   validActionsFromState(state, maze) {

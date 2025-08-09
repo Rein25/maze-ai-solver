@@ -9,6 +9,7 @@ import { HybridMazeAgent } from "./ai/HybridMazeAgent";
 import { NeuralMazeAgent } from "./ai/NeuralMazeAgent";
 import { GameModes } from "./ai/EnhancedGameModes";
 import { AutoEpsilonScheduler } from "./ai/AutoEpsilonScheduler";
+import { FlowSimulator } from "./sim/FlowSimulator";
 import "./App.css";
 
 function App() {
@@ -26,6 +27,8 @@ function App() {
   const [agentPath, setAgentPath] = useState([[1, 1]]);
   const [gameStatus, setGameStatus] = useState("idle"); // idle, playing, won, lost
   const [visualData, setVisualData] = useState(null); // For dynamic elements
+  const [waterSim, setWaterSim] = useState(null);
+  const [electricSim, setElectricSim] = useState(null);
 
   // Training state
   const [isTraining, setIsTraining] = useState(false);
@@ -74,6 +77,7 @@ function App() {
 
   // Training interval ref
   const trainingIntervalRef = useRef(null);
+  const flowIntervalRef = useRef(null);
 
   // Initialize maze and agent
   useEffect(() => {
@@ -180,7 +184,23 @@ function App() {
         // Keep status as playing; do not finishGame or reset here
       }
     }
-  }, [maze, isTraining, gameMode]);
+
+    // Advance flow simulations one step per tick while training
+    if (waterSim) {
+      waterSim.step();
+    }
+    if (electricSim) {
+      electricSim.step();
+    }
+    // Merge visual overlays (dynamic elements + flows) using latest state
+    setVisualData((prev) => ({
+      ...(prev || {}),
+      flows: [
+        ...(waterSim ? waterSim.getVisualization() : []),
+        ...(electricSim ? electricSim.getVisualization() : []),
+      ],
+    }));
+  }, [maze, isTraining, gameMode, waterSim, electricSim]);
 
   // Start training interval
   useEffect(() => {
@@ -198,6 +218,36 @@ function App() {
       }
     };
   }, [isTraining, trainingStep, trainingSpeed]);
+
+  // Animate flows even when not training
+  useEffect(() => {
+    // If training, flows are advanced in trainingStep
+    if (isTraining) {
+      if (flowIntervalRef.current) clearInterval(flowIntervalRef.current);
+      flowIntervalRef.current = null;
+      return;
+    }
+    if (!waterSim && !electricSim) return;
+
+    flowIntervalRef.current = setInterval(() => {
+      if (waterSim) waterSim.step();
+      if (electricSim) electricSim.step();
+      setVisualData((prev) => ({
+        ...(prev || {}),
+        flows: [
+          ...(waterSim ? waterSim.getVisualization() : []),
+          ...(electricSim ? electricSim.getVisualization() : []),
+        ],
+      }));
+    }, 120);
+
+    return () => {
+      if (flowIntervalRef.current) {
+        clearInterval(flowIntervalRef.current);
+        flowIntervalRef.current = null;
+      }
+    };
+  }, [isTraining, waterSim, electricSim]);
 
   // Apply MCTS toggle to current agent without recreation
   useEffect(() => {
@@ -273,6 +323,12 @@ function App() {
     createAgent(mazeSize, mazeSize, gameMode, agentType);
 
     resetGame();
+
+    // Initialize flow simulators for the new maze
+    const w = new FlowSimulator(mazeSize, mazeSize, newMaze, "water");
+    const e = new FlowSimulator(mazeSize, mazeSize, newMaze, "electric");
+    setWaterSim(w);
+    setElectricSim(e);
 
     // Update training speed based on maze size and game mode
     if (gameMode !== "classic" || agentType === "neural" || mazeSize > 51) {
@@ -414,6 +470,31 @@ function App() {
     setTrainingSpeed(newSpeed);
   };
 
+  const handlePourWater = () => {
+    if (!waterSim) return;
+    waterSim.pourFromTop();
+    // immediate visual update
+    setVisualData((prev) => ({
+      ...(prev || {}),
+      flows: [
+        ...(waterSim ? waterSim.getVisualization() : []),
+        ...(electricSim ? electricSim.getVisualization() : []),
+      ],
+    }));
+  };
+
+  const handlePulseElectricity = () => {
+    if (!electricSim) return;
+    electricSim.pourFromTop();
+    setVisualData((prev) => ({
+      ...(prev || {}),
+      flows: [
+        ...(waterSim ? waterSim.getVisualization() : []),
+        ...(electricSim ? electricSim.getVisualization() : []),
+      ],
+    }));
+  };
+
   const handleToggleAutoTune = (checked) => {
     setAutoTuneEpsilon(checked);
     // Recreate agent to apply new schedule policy
@@ -541,6 +622,8 @@ function App() {
               onToggleSolution={handleToggleSolution}
               onSolveMazeInstantly={handleSolveMazeInstantly}
               onBenchmarkAlgorithms={handleBenchmarkAlgorithms}
+              onPourWater={handlePourWater}
+              onPulseElectricity={handlePulseElectricity}
               onAgentTypeChange={handleAgentTypeChange}
               onGameModeChange={handleGameModeChange}
               isTraining={isTraining}
@@ -573,7 +656,7 @@ function App() {
         <p>
           Built with ❤️ by Reinout.
           <a
-            href="https://github.com"
+            href="https://github.com/Rein25/maze-ai-solver"
             target="_blank"
             rel="noopener noreferrer"
           >
